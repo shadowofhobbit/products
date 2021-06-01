@@ -18,9 +18,9 @@ public class ProductsService {
     private final ProductsRepository productsRepository;
 
     public Product create(Product product) {
-        product.setCreatedAt(LocalDate.now());
-        product.setUpdatedAt(null);
         var productEntity = productsMapper.toEntity(product);
+        productEntity.setCreatedAt(LocalDate.now());
+        productEntity.setUpdatedAt(null);
         var savedEntity = productsRepository.save(productEntity);
         return productsMapper.toDto(savedEntity);
     }
