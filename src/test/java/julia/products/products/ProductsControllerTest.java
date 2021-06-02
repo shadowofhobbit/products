@@ -50,6 +50,45 @@ class ProductsControllerTest {
     }
 
     @Test
+    void createWithNegativePrice() throws Exception {
+        Product pen = prepareData(null,
+                List.of(new ProductDetails("en", "Pen", "Blue pen")),
+                List.of(new Price("EUR", BigDecimal.valueOf(-1.5))), null);
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                post("/products/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createWithoutPrice() throws Exception {
+        Product pen = prepareData(null,
+                List.of(new ProductDetails("en", "Pen", "Blue pen")),
+                List.of(), null);
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                post("/products/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createWithEmptyTitle() throws Exception {
+        Product pen = prepareData(null,
+                List.of(new ProductDetails("en", "", "Blue pen")),
+                List.of(new Price("EUR", BigDecimal.valueOf(-1.5))), null);
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                post("/products/")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void getById() throws Exception {
         var prices = List.of(new Price("EUR", BigDecimal.valueOf(1.5)),
                 new Price("USD", BigDecimal.valueOf(1.83)));
@@ -120,6 +159,58 @@ class ProductsControllerTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(content().json(expectedJson));
+    }
+
+    @Test
+    void updateWithZeroPrice() throws Exception {
+        Product pen = prepareData(1L,
+                List.of(new ProductDetails("en", "Pen", "Blue pen")),
+                List.of(new Price("EUR", BigDecimal.valueOf(0.0))), LocalDate.now().minusDays(1));
+          var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateWithNullPrice() throws Exception {
+        Product pen = prepareData(1L,
+                List.of(new ProductDetails("en", "Pen", "Blue pen")),
+                List.of(new Price("EUR", null)), LocalDate.now().minusDays(1));
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateWithoutTitle() throws Exception {
+        Product pen = prepareData(1L,
+                List.of(),
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), LocalDate.now().minusDays(1));
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateWithNullTitle() throws Exception {
+        Product pen = prepareData(1L,
+                List.of(new ProductDetails("en", null, "Blue pen")),
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), LocalDate.now().minusDays(1));
+        var json = objectMapper.writeValueAsString(pen);
+        mockMvc.perform(
+                put("/products/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest());
     }
 
     @Test

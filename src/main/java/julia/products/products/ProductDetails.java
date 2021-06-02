@@ -2,9 +2,12 @@ package julia.products.products;
 
 import lombok.Data;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 public class ProductDetails {
     private String language;
+    @NotEmpty
     private String title;
     private String description;
 

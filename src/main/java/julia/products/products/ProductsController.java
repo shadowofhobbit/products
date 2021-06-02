@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -19,7 +20,7 @@ public class ProductsController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation("Create product")
-    public Product create(@RequestBody Product product) {
+    public Product create(@Valid @RequestBody Product product) {
         return productsService.create(product);
     }
 
@@ -37,7 +38,7 @@ public class ProductsController {
 
     @PutMapping("/{id}")
     @ApiOperation("Update product")
-    public Product update(@PathVariable long id, @RequestBody Product product) {
+    public Product update(@PathVariable long id, @Valid @RequestBody Product product) {
         return productsService.update(id, product);
     }
 
