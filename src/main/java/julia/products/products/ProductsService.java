@@ -16,11 +16,23 @@ import java.util.stream.Collectors;
 public class ProductsService {
     private final ProductsMapper productsMapper;
     private final ProductsRepository productsRepository;
+    private final PricesMapper pricesMapper;
+    private final PricesRepository pricesRepository;
 
     public Product create(Product product) {
         var productEntity = productsMapper.toEntity(product);
         productEntity.setCreatedAt(LocalDate.now());
         productEntity.setUpdatedAt(null);
+        var priceEntities = product.getPrices().stream()
+                .map(dto -> {
+                    var priceEntity = pricesMapper.toEntity(dto);
+                    priceEntity.setId(new PriceEntityId());
+                    priceEntity.getId().setCurrency(dto.getCurrency());
+                    priceEntity.setProduct(productEntity);
+                    return priceEntity;
+                })
+                .collect(Collectors.toSet());
+        productEntity.setPrices(priceEntities);
         var savedEntity = productsRepository.save(productEntity);
         return productsMapper.toDto(savedEntity);
     }
@@ -39,12 +51,23 @@ public class ProductsService {
     }
 
     public Product update(long id, Product product) {
-        var entity = productsRepository.findById(id).orElseThrow();
-        entity.setTitle(product.getTitle());
-        entity.setDescription(product.getDescription());
-        entity.setPrice(product.getPrice());
-        entity.setUpdatedAt(LocalDate.now());
-        var savedEntity = productsRepository.save(entity);
+        var productEntity = productsRepository.findById(id).orElseThrow();
+        productEntity.setTitle(product.getTitle());
+        productEntity.setDescription(product.getDescription());
+        var priceEntities = product.getPrices().stream()
+                .map(dto -> {
+                    var priceEntity = pricesMapper.toEntity(dto);
+                    priceEntity.setId(new PriceEntityId());
+                    priceEntity.getId().setCurrency(dto.getCurrency());
+                    priceEntity.setProduct(productEntity);
+                    priceEntity.getId().setProductId(id);
+                    return priceEntity;
+                })
+                .collect(Collectors.toSet());
+        pricesRepository.saveAll(priceEntities);
+        productEntity.setPrices(priceEntities);
+        productEntity.setUpdatedAt(LocalDate.now());
+        var savedEntity = productsRepository.save(productEntity);
         return productsMapper.toDto(savedEntity);
     }
 

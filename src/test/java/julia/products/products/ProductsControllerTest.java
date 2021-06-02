@@ -33,9 +33,9 @@ class ProductsControllerTest {
     @Test
     void create() throws Exception {
         Product pen = prepareData(null,"Pen", "Blue pen",
-                BigDecimal.valueOf(1.5), null);
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), null);
         Product createdPen = prepareData(1L,"Pen", "Blue pen",
-                BigDecimal.valueOf(1.5), LocalDate.now());
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), LocalDate.now());
         when(productsService.create(pen)).thenReturn(createdPen);
         var json = objectMapper.writeValueAsString(pen);
         var expectedJson = objectMapper.writeValueAsString(createdPen);
@@ -49,8 +49,10 @@ class ProductsControllerTest {
 
     @Test
     void getById() throws Exception {
+        var prices = List.of(new Price("EUR", BigDecimal.valueOf(1.5)),
+                new Price("USD", BigDecimal.valueOf(1.83)));
         Product pen = prepareData(1L,"Pen", "Blue pen",
-                BigDecimal.valueOf(1.5), LocalDate.now().minusDays(10));
+                prices, LocalDate.now().minusDays(10));
         when(productsService.get(1L)).thenReturn(Optional.of(pen));
         var expectedJson = objectMapper.writeValueAsString(pen);
         mockMvc.perform(
@@ -59,12 +61,12 @@ class ProductsControllerTest {
                 .andExpect(content().json(expectedJson));
     }
 
-    private Product prepareData(Long id, String title, String description, BigDecimal price, LocalDate createdAt) {
+    private Product prepareData(Long id, String title, String description, List<Price> prices, LocalDate createdAt) {
         var product = new Product();
         product.setId(id);
         product.setTitle(title);
         product.setDescription(description);
-        product.setPrice(price);
+        product.setPrices(prices);
         product.setCreatedAt(createdAt);
         return product;
     }
@@ -82,12 +84,12 @@ class ProductsControllerTest {
         Product pen = prepareData(1L,
                 "Pen",
                 "Blue pen",
-                BigDecimal.valueOf(1.5),
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))),
                 LocalDate.now().minusDays(10));
         Product laptop = prepareData(2L,
                 "Laptop",
                 "Cool brand-new laptop",
-                BigDecimal.valueOf(1499.99),
+                List.of(new Price("EUR", BigDecimal.valueOf(1499.9))),
                 LocalDate.now().minusDays(1));
         var products = List.of(pen, laptop);
         when(productsService.getAll()).thenReturn(products);
@@ -101,9 +103,9 @@ class ProductsControllerTest {
     @Test
     void update() throws Exception {
         Product pen = prepareData(1L,"Pen", "Blue pen",
-                BigDecimal.valueOf(1.5), LocalDate.now().minusDays(1));
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), LocalDate.now().minusDays(1));
         Product updatedPen = prepareData(1L,"Pen", "Blue pen",
-                BigDecimal.valueOf(1.5), LocalDate.now().minusDays(1));
+                List.of(new Price("EUR", BigDecimal.valueOf(1.5))), LocalDate.now().minusDays(1));
         updatedPen.setUpdatedAt(LocalDate.now());
         when(productsService.update(1L, pen)).thenReturn(updatedPen);
         var json = objectMapper.writeValueAsString(pen);

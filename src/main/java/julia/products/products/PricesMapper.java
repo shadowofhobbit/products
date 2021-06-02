@@ -4,9 +4,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface ProductsMapper {
-    Product toDto(ProductEntity entity);
+public interface PricesMapper {
     @Mapping(target = "currency", source = "id.currency")
     Price toDto(PriceEntity entity);
-    ProductEntity toEntity(Product dto);
+    PriceEntity toEntity(Price dto);
 }

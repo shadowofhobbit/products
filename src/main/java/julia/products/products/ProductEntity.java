@@ -4,8 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
+import static javax.persistence.CascadeType.ALL;
 
 
 @Getter
@@ -21,7 +24,14 @@ public class ProductEntity {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String description;
-    private BigDecimal price;
+
+    public void setPrices(Set<PriceEntity> prices) {
+        this.prices.clear();
+        this.prices.addAll(prices);
+    }
+
+    @OneToMany(fetch = FetchType.LAZY, cascade=ALL, mappedBy="product", orphanRemoval = true)
+    private Set<PriceEntity> prices = new HashSet<>();
     private LocalDate createdAt;
     private LocalDate updatedAt;
 

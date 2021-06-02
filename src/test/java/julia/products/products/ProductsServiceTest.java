@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,20 +24,27 @@ class ProductsServiceTest {
     private ProductsMapper productsMapper;
     @Mock
     private ProductsRepository productsRepository;
+    @Mock
+    private PricesMapper pricesMapper;
+    @Mock
+    private PricesRepository pricesRepository;
     private ProductsService productsService;
 
     @BeforeEach
     void setUp() {
-        productsService = new ProductsService(productsMapper, productsRepository);
+        productsService = new ProductsService(productsMapper, productsRepository, pricesMapper, pricesRepository);
     }
 
     @Test
     void create() {
-        var entity = createEntity(null, "phone", "a phone",
-                BigDecimal.valueOf(500.0), null);
+        var priceEntity = new PriceEntity();
+        priceEntity.setPrice(BigDecimal.valueOf(500.0));
+        var productEntity = createEntity(null, "phone", "a phone",
+                Set.of(priceEntity), null);
         var product = createProduct(null, "phone", "a phone",
-                BigDecimal.valueOf(500.0), null);
-        when(productsMapper.toEntity(any(Product.class))).thenReturn(entity);
+                List.of(new Price("EUR", BigDecimal.valueOf(500.0))), null);
+        when(productsMapper.toEntity(any(Product.class))).thenReturn(productEntity);
+        when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
         productsService.create(product);
         var captor = ArgumentCaptor.forClass(ProductEntity.class);
         verify(productsRepository).save(captor.capture());
@@ -45,11 +53,13 @@ class ProductsServiceTest {
 
     @Test
     void getById() {
+        var priceEntity = new PriceEntity();
+        priceEntity.setPrice(BigDecimal.valueOf(500.0));
         var productEntity = createEntity(1L, "phone", "a phone",
-                BigDecimal.valueOf(500.0), LocalDate.now());
+                Set.of(priceEntity), LocalDate.now());
         when(productsRepository.findById(1L)).thenReturn(Optional.of(productEntity));
         var expectedDto = createProduct(1L, "phone", "a phone",
-                BigDecimal.valueOf(500.0), LocalDate.now());
+                List.of(new Price("EUR", BigDecimal.valueOf(500.0))), LocalDate.now());
         when(productsMapper.toDto(productEntity)).thenReturn(expectedDto);
         var actualDto = productsService.get(1L);
         verify(productsRepository).findById(1L);
@@ -57,23 +67,23 @@ class ProductsServiceTest {
         assertEquals(expectedDto, actualDto.orElseThrow());
     }
 
-    private Product createProduct(Long id, String title, String description, BigDecimal price, LocalDate createdAt) {
+    private Product createProduct(Long id, String title, String description, List<Price> prices, LocalDate createdAt) {
         var product = new Product();
         product.setId(id);
         product.setTitle(title);
         product.setDescription(description);
-        product.setPrice(price);
+        product.setPrices(prices);
         product.setCreatedAt(createdAt);
         return product;
     }
 
     private ProductEntity createEntity(Long id, String title, String description,
-                                       BigDecimal price, LocalDate createdAt) {
+                                       Set<PriceEntity> prices, LocalDate createdAt) {
         var product = new ProductEntity();
         product.setId(id);
         product.setTitle(title);
         product.setDescription(description);
-        product.setPrice(price);
+        product.setPrices(prices);
         product.setCreatedAt(createdAt);
         return product;
     }
@@ -88,14 +98,20 @@ class ProductsServiceTest {
 
     @Test
     void getAll() {
+        var priceEntity = new PriceEntity();
+        priceEntity.setPrice(BigDecimal.valueOf(500.0));
+        var priceEntity2 = new PriceEntity();
+        priceEntity2.setPrice(BigDecimal.valueOf(500.0));
         var entity = createEntity(1L, "phone", "a phone",
-                BigDecimal.valueOf(500.0), LocalDate.of(2020,8,9));
+                Set.of(priceEntity), LocalDate.of(2020,8,9));
         var entity2 = createEntity(2L, "phone 2", "another phone",
-                BigDecimal.valueOf(500.0), LocalDate.of(2021,1,19));
+                Set.of(priceEntity2), LocalDate.of(2021,1,19));
         var product = createProduct(1L, "phone", "a phone",
-                BigDecimal.valueOf(500.0), LocalDate.of(2020,8,9));
+                List.of(new Price("EUR", BigDecimal.valueOf(500.0))),
+                LocalDate.of(2020,8,9));
         var product2 = createProduct(2L, "phone 2", "another phone",
-                BigDecimal.valueOf(500.0), LocalDate.of(2021,1,19));
+                List.of(new Price("EUR", BigDecimal.valueOf(500.0))),
+                LocalDate.of(2021,1,19));
         when(productsRepository.findAll()).thenReturn(List.of(entity, entity2));
         when(productsMapper.toDto(entity)).thenReturn(product);
         when(productsMapper.toDto(entity2)).thenReturn(product2);
@@ -105,16 +121,24 @@ class ProductsServiceTest {
 
     @Test
     void update() {
+        var oldPriceEntity = new PriceEntity();
+        oldPriceEntity.setPrice(BigDecimal.valueOf(500.0));
         var entity = createEntity(1L, "phone", "a phone",
-                BigDecimal.valueOf(500.0), LocalDate.of(2020,8,9));
+                Set.of(oldPriceEntity), LocalDate.of(2020,8,9));
         var product = createProduct(1L, "phone", "a phone",
-                BigDecimal.valueOf(550.0), LocalDate.of(2020,8,9));
+                List.of(new Price("EUR", BigDecimal.valueOf(550.0))),
+                LocalDate.of(2020,8,9));
+        var priceEntity = new PriceEntity();
+        priceEntity.setPrice(BigDecimal.valueOf(550.0));
+        when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
         when(productsRepository.findById(1L)).thenReturn(Optional.of(entity));
         productsService.update(1L, product);
         var captor = ArgumentCaptor.forClass(ProductEntity.class);
         verify(productsRepository).save(captor.capture());
-        assertEquals(LocalDate.now(), captor.getValue().getUpdatedAt());
-        assertEquals(BigDecimal.valueOf(550.0), captor.getValue().getPrice());
+        var entityToSave = captor.getValue();
+        assertEquals(LocalDate.now(), entityToSave.getUpdatedAt());
+        var prices = entityToSave.getPrices();
+        assertEquals(BigDecimal.valueOf(550.0), prices.iterator().next().getPrice());
     }
 
     @Test
