@@ -1,7 +1,6 @@
 package julia.products.products;
 
 
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +11,6 @@ import java.util.Objects;
 @Embeddable
 @Getter
 @Setter
-
 public class PriceEntityId implements Serializable {
     private static final long serialVersionUID = -5073745645379676235L;
     private String currency;

@@ -28,23 +28,33 @@ class ProductsServiceTest {
     private PricesMapper pricesMapper;
     @Mock
     private PricesRepository pricesRepository;
+    @Mock
+    private ProductDetailsMapper detailsMapper;
+    @Mock
+    private ProductDetailsRepository detailsRepository;
     private ProductsService productsService;
 
     @BeforeEach
     void setUp() {
-        productsService = new ProductsService(productsMapper, productsRepository, pricesMapper, pricesRepository);
+        productsService = new ProductsService(productsMapper, productsRepository, pricesMapper,
+                pricesRepository, detailsMapper, detailsRepository);
     }
 
     @Test
     void create() {
         var priceEntity = new PriceEntity();
         priceEntity.setPrice(BigDecimal.valueOf(500.0));
-        var productEntity = createEntity(null, "phone", "a phone",
+        var detailsEntity = new ProductDetailsEntity();
+        detailsEntity.setTitle("phone");
+        detailsEntity.setDescription("a phone");
+        var productEntity = createEntity(null, Set.of(detailsEntity),
                 Set.of(priceEntity), null);
-        var product = createProduct(null, "phone", "a phone",
+        var product = createProductDto(null,
+                List.of(new ProductDetails("en", "phone", "a phone")),
                 List.of(new Price("EUR", BigDecimal.valueOf(500.0))), null);
         when(productsMapper.toEntity(any(Product.class))).thenReturn(productEntity);
         when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
+        when(detailsMapper.toEntity(any())).thenReturn(detailsEntity);
         productsService.create(product);
         var captor = ArgumentCaptor.forClass(ProductEntity.class);
         verify(productsRepository).save(captor.capture());
@@ -55,10 +65,14 @@ class ProductsServiceTest {
     void getById() {
         var priceEntity = new PriceEntity();
         priceEntity.setPrice(BigDecimal.valueOf(500.0));
-        var productEntity = createEntity(1L, "phone", "a phone",
+        var detailsEntity = new ProductDetailsEntity();
+        detailsEntity.setTitle("phone");
+        detailsEntity.setDescription("a phone");
+        var productEntity = createEntity(1L, Set.of(detailsEntity),
                 Set.of(priceEntity), LocalDate.now());
         when(productsRepository.findById(1L)).thenReturn(Optional.of(productEntity));
-        var expectedDto = createProduct(1L, "phone", "a phone",
+        var expectedDto = createProductDto(1L,
+                List.of(new ProductDetails("en", "phone", "a phone")),
                 List.of(new Price("EUR", BigDecimal.valueOf(500.0))), LocalDate.now());
         when(productsMapper.toDto(productEntity)).thenReturn(expectedDto);
         var actualDto = productsService.get(1L);
@@ -67,22 +81,20 @@ class ProductsServiceTest {
         assertEquals(expectedDto, actualDto.orElseThrow());
     }
 
-    private Product createProduct(Long id, String title, String description, List<Price> prices, LocalDate createdAt) {
+    private Product createProductDto(Long id, List<ProductDetails> details, List<Price> prices, LocalDate createdAt) {
         var product = new Product();
         product.setId(id);
-        product.setTitle(title);
-        product.setDescription(description);
+        product.setProductDetails(details);
         product.setPrices(prices);
         product.setCreatedAt(createdAt);
         return product;
     }
 
-    private ProductEntity createEntity(Long id, String title, String description,
+    private ProductEntity createEntity(Long id,  Set<ProductDetailsEntity> details,
                                        Set<PriceEntity> prices, LocalDate createdAt) {
         var product = new ProductEntity();
         product.setId(id);
-        product.setTitle(title);
-        product.setDescription(description);
+        product.setProductDetails(details);
         product.setPrices(prices);
         product.setCreatedAt(createdAt);
         return product;
@@ -102,14 +114,22 @@ class ProductsServiceTest {
         priceEntity.setPrice(BigDecimal.valueOf(500.0));
         var priceEntity2 = new PriceEntity();
         priceEntity2.setPrice(BigDecimal.valueOf(500.0));
-        var entity = createEntity(1L, "phone", "a phone",
+        var detailsEntity = new ProductDetailsEntity();
+        detailsEntity.setTitle("phone");
+        detailsEntity.setDescription("a phone");
+        var detailsEntity2 = new ProductDetailsEntity();
+        detailsEntity2.setTitle("phone 2");
+        detailsEntity2.setDescription("another phone");
+        var entity = createEntity(1L, Set.of(detailsEntity),
                 Set.of(priceEntity), LocalDate.of(2020,8,9));
-        var entity2 = createEntity(2L, "phone 2", "another phone",
+        var entity2 = createEntity(2L, Set.of(detailsEntity2),
                 Set.of(priceEntity2), LocalDate.of(2021,1,19));
-        var product = createProduct(1L, "phone", "a phone",
+        var product = createProductDto(1L,
+                List.of(new ProductDetails("en", "phone", "a phone")),
                 List.of(new Price("EUR", BigDecimal.valueOf(500.0))),
                 LocalDate.of(2020,8,9));
-        var product2 = createProduct(2L, "phone 2", "another phone",
+        var product2 = createProductDto(2L,
+                List.of(new ProductDetails("en", "phone 2", "another phone")),
                 List.of(new Price("EUR", BigDecimal.valueOf(500.0))),
                 LocalDate.of(2021,1,19));
         when(productsRepository.findAll()).thenReturn(List.of(entity, entity2));
@@ -123,14 +143,22 @@ class ProductsServiceTest {
     void update() {
         var oldPriceEntity = new PriceEntity();
         oldPriceEntity.setPrice(BigDecimal.valueOf(500.0));
-        var entity = createEntity(1L, "phone", "a phone",
+        var oldDetailsEntity = new ProductDetailsEntity();
+        oldDetailsEntity.setTitle("phone");
+        oldDetailsEntity.setDescription("a phone");
+        var entity = createEntity(1L, Set.of(oldDetailsEntity),
                 Set.of(oldPriceEntity), LocalDate.of(2020,8,9));
-        var product = createProduct(1L, "phone", "a phone",
+        var product = createProductDto(1L,
+                List.of(new ProductDetails("en", "updated phone", "updated phone description")),
                 List.of(new Price("EUR", BigDecimal.valueOf(550.0))),
                 LocalDate.of(2020,8,9));
         var priceEntity = new PriceEntity();
         priceEntity.setPrice(BigDecimal.valueOf(550.0));
+        var detailsEntity = new ProductDetailsEntity();
+        detailsEntity.setTitle("updated phone");
+        detailsEntity.setDescription("updated phone description");
         when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
+        when(detailsMapper.toEntity(any())).thenReturn(detailsEntity);
         when(productsRepository.findById(1L)).thenReturn(Optional.of(entity));
         productsService.update(1L, product);
         var captor = ArgumentCaptor.forClass(ProductEntity.class);

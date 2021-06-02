@@ -8,8 +8,7 @@ import java.util.List;
 @Data
 public class Product {
     private Long id;
-    private String title;
-    private String description;
+    private List<ProductDetails> productDetails;
     private List<Price> prices;
     private LocalDate createdAt;
     private LocalDate updatedAt;

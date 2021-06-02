@@ -8,5 +8,7 @@ public interface ProductsMapper {
     Product toDto(ProductEntity entity);
     @Mapping(target = "currency", source = "id.currency")
     Price toDto(PriceEntity entity);
+    @Mapping(target = "language", source = "id.language")
+    ProductDetails toDto(ProductDetailsEntity entity);
     ProductEntity toEntity(Product dto);
 }

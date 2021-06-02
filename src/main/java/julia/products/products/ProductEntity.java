@@ -21,18 +21,20 @@ public class ProductEntity {
             allocationSize=1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "products_id_seq")
     private Long id;
-    private String title;
-    @Column(columnDefinition = "TEXT")
-    private String description;
-
-    public void setPrices(Set<PriceEntity> prices) {
-        this.prices.clear();
-        this.prices.addAll(prices);
-    }
-
+    @OneToMany(fetch = FetchType.LAZY, cascade=ALL, mappedBy="product", orphanRemoval = true)
+    private Set<ProductDetailsEntity> productDetails = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY, cascade=ALL, mappedBy="product", orphanRemoval = true)
     private Set<PriceEntity> prices = new HashSet<>();
     private LocalDate createdAt;
     private LocalDate updatedAt;
 
+    public void setProductDetails(Set<ProductDetailsEntity> details) {
+        this.productDetails.clear();
+        this.productDetails.addAll(details);
+    }
+
+    public void setPrices(Set<PriceEntity> prices) {
+        this.prices.clear();
+        this.prices.addAll(prices);
+    }
 }

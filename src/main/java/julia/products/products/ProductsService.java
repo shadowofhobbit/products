@@ -18,6 +18,8 @@ public class ProductsService {
     private final ProductsRepository productsRepository;
     private final PricesMapper pricesMapper;
     private final PricesRepository pricesRepository;
+    private final ProductDetailsMapper productDetailsMapper;
+    private final ProductDetailsRepository productDetailsRepository;
 
     public Product create(Product product) {
         var productEntity = productsMapper.toEntity(product);
@@ -33,6 +35,16 @@ public class ProductsService {
                 })
                 .collect(Collectors.toSet());
         productEntity.setPrices(priceEntities);
+        var productDetails = product.getProductDetails().stream()
+                .map(dto -> {
+                    var detailsEntity = productDetailsMapper.toEntity(dto);
+                    detailsEntity.setId(new ProductDetailsId());
+                    detailsEntity.getId().setLanguage(dto.getLanguage());
+                    detailsEntity.setProduct(productEntity);
+                    return detailsEntity;
+                })
+                .collect(Collectors.toSet());
+        productEntity.setProductDetails(productDetails);
         var savedEntity = productsRepository.save(productEntity);
         return productsMapper.toDto(savedEntity);
     }
@@ -52,8 +64,6 @@ public class ProductsService {
 
     public Product update(long id, Product product) {
         var productEntity = productsRepository.findById(id).orElseThrow();
-        productEntity.setTitle(product.getTitle());
-        productEntity.setDescription(product.getDescription());
         var priceEntities = product.getPrices().stream()
                 .map(dto -> {
                     var priceEntity = pricesMapper.toEntity(dto);
@@ -66,6 +76,18 @@ public class ProductsService {
                 .collect(Collectors.toSet());
         pricesRepository.saveAll(priceEntities);
         productEntity.setPrices(priceEntities);
+        var productDetails = product.getProductDetails().stream()
+                .map(dto -> {
+                    var detailsEntity = productDetailsMapper.toEntity(dto);
+                    detailsEntity.setId(new ProductDetailsId());
+                    detailsEntity.getId().setLanguage(dto.getLanguage());
+                    detailsEntity.setProduct(productEntity);
+                    detailsEntity.getId().setProductId(id);
+                    return detailsEntity;
+                })
+                .collect(Collectors.toSet());
+        productDetailsRepository.saveAll(productDetails);
+        productEntity.setProductDetails(productDetails);
         productEntity.setUpdatedAt(LocalDate.now());
         var savedEntity = productsRepository.save(productEntity);
         return productsMapper.toDto(savedEntity);
