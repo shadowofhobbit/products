@@ -1,12 +1,16 @@
-package julia.productsapp.products;
+package julia.productsapp.products.client;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.Value;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ProductClientDto {
     private Long id;
     private String language;

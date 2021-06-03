@@ -1,4 +1,4 @@
-package julia.productsapp.products;
+package julia.productsapp.products.client;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/products/client")
+@RequestMapping("/client/products/")
 @RequiredArgsConstructor
 @Api(tags="Products Client")
 public class ProductsClientController {
@@ -20,7 +20,7 @@ public class ProductsClientController {
                                 @RequestParam String language,
                                 @RequestParam int page,
                                 @RequestParam int size) {
-        return null;
+        return clientService.search(term, currency, language, page, size);
     }
 
     @GetMapping

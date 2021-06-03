@@ -1,19 +1,17 @@
-package julia.productsapp.products;
+package julia.productsapp.products.client;
 
 import julia.productsapp.error.NoDataException;
+import julia.productsapp.products.ProductEntity;
+import julia.productsapp.products.ProductsMapper;
+import julia.productsapp.products.ProductsRepository;
 import julia.productsapp.products.details.ProductDetailsEntity;
-import julia.productsapp.products.details.ProductDetailsId;
-import julia.productsapp.products.details.ProductDetailsRepository;
 import julia.productsapp.products.price.PriceEntity;
-import julia.productsapp.products.price.PriceEntityId;
-import julia.productsapp.products.price.PriceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.NoSuchElementException;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -21,8 +19,6 @@ import java.util.stream.Collectors;
 public class ProductsClientService {
     private final ProductsMapper productsMapper;
     private final ProductsRepository productsRepository;
-    private final PriceRepository priceRepository;
-    private final ProductDetailsRepository detailsRepository;
 
     public ProductClientDto get(long id, String currency, String language) {
         var product = productsRepository.findById(id)
@@ -67,26 +63,19 @@ public class ProductsClientService {
     public SearchResult getAll(String currency, String language, int pageNumber, int size) {
         var pageRequest = PageRequest.of(pageNumber, size);
         var page =  productsRepository
-                .findAllByPricesIdCurrencyAndProductDetailsIdLanguage(currency, language, pageRequest);
-        var pricesIds = page.map(product -> new PriceEntityId(currency, product.getId()));
-        var prices = priceRepository.findAllById(pricesIds)
-                .stream()
-                .collect(Collectors.toMap(price -> price.getId().getProductId(), price -> price));
-        var detailsIds = page.map(product -> new ProductDetailsId(language, product.getId()));
-        var details = detailsRepository.findAllById(detailsIds)
-                .stream()
-                .collect(Collectors.toMap(det -> det.getId().getProductId(), det -> det));
-        var result = page
-                .map(productEntity -> {
-                    var dto = productsMapper.toClientDto(productEntity, currency, language);
-                    dto.setPrice(prices.get(dto.getId()).getPrice());
-                    var detailsEntity = details.get(dto.getId());
-                    dto.setTitle(detailsEntity.getTitle());
-                    dto.setDescription(detailsEntity.getDescription());
-                    return dto;
-                });
-        return new SearchResult(result.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
+                .findAllByCurrencyAndLanguage(currency, language, pageRequest);
+        return new SearchResult(page.getContent(), page.getNumber(), page.getSize(), page.getTotalElements());
     }
 
 
+    public SearchResult search(String term, String currency, String language, int pageNumber, int size) {
+        var pageRequest = PageRequest.of(pageNumber, size);
+        var page = productsRepository
+                .findByTitleOrDescription(term, currency, language, pageRequest);
+        return new SearchResult(
+                page.getContent(),
+                page.getNumber(),
+                page.getSize(),
+                page.getTotalElements());
+    }
 }
