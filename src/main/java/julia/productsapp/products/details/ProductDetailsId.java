@@ -19,6 +19,11 @@ public class ProductDetailsId implements Serializable {
     public ProductDetailsId() {
     }
 
+    public ProductDetailsId(String language, Long productId) {
+        this.language = language;
+        this.productId = productId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

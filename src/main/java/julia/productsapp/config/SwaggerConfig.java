@@ -21,7 +21,9 @@ public class SwaggerConfig {
                 .apis(RequestHandlerSelectors.basePackage("julia.products"))
                 .paths(PathSelectors.any())
                 .build()
-                .tags(new Tag("Products", "Products operations"))
+                .tags(
+                        new Tag("Products", "Products operations for admins"),
+                        new Tag("Products Client", "Products operations for clients"))
                 .apiInfo(apiInfo());
     }
 

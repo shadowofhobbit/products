@@ -1,7 +1,6 @@
 package julia.productsapp.products;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import julia.productsapp.products.details.Product;
 import julia.productsapp.products.details.ProductDetails;
 import julia.productsapp.products.price.Price;
 import org.junit.jupiter.api.Test;

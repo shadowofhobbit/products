@@ -1,6 +1,5 @@
 package julia.productsapp.products;
 
-import julia.productsapp.products.details.Product;
 import julia.productsapp.products.details.ProductDetailsId;
 import julia.productsapp.products.details.ProductDetailsMapper;
 import julia.productsapp.products.details.ProductDetailsRepository;

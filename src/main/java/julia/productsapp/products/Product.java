@@ -1,5 +1,6 @@
-package julia.productsapp.products.details;
+package julia.productsapp.products;
 
+import julia.productsapp.products.details.ProductDetails;
 import julia.productsapp.products.price.Price;
 import lombok.Data;
 
