@@ -1,5 +1,7 @@
-package julia.products.products;
+package julia.productsapp.products;
 
+import julia.productsapp.products.details.ProductDetailsEntity;
+import julia.productsapp.products.price.PriceEntity;
 import lombok.Getter;
 import lombok.Setter;
 

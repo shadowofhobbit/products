@@ -1,4 +1,4 @@
-package julia.products.config;
+package julia.productsapp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

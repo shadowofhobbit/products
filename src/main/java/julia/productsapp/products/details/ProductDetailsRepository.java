@@ -1,4 +1,4 @@
-package julia.products.products;
+package julia.productsapp.products.details;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

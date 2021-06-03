@@ -1,5 +1,6 @@
-package julia.products.products;
+package julia.productsapp.products.details;
 
+import julia.productsapp.products.price.Price;
 import lombok.Data;
 
 import javax.validation.Valid;

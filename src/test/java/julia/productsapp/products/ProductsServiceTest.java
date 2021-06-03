@@ -1,5 +1,10 @@
-package julia.products.products;
+package julia.productsapp.products;
 
+import julia.productsapp.products.details.*;
+import julia.productsapp.products.price.Price;
+import julia.productsapp.products.price.PriceEntity;
+import julia.productsapp.products.price.PriceMapper;
+import julia.productsapp.products.price.PriceRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -25,9 +30,9 @@ class ProductsServiceTest {
     @Mock
     private ProductsRepository productsRepository;
     @Mock
-    private PricesMapper pricesMapper;
+    private PriceMapper priceMapper;
     @Mock
-    private PricesRepository pricesRepository;
+    private PriceRepository priceRepository;
     @Mock
     private ProductDetailsMapper detailsMapper;
     @Mock
@@ -36,8 +41,8 @@ class ProductsServiceTest {
 
     @BeforeEach
     void setUp() {
-        productsService = new ProductsService(productsMapper, productsRepository, pricesMapper,
-                pricesRepository, detailsMapper, detailsRepository);
+        productsService = new ProductsService(productsMapper, productsRepository, priceMapper,
+                priceRepository, detailsMapper, detailsRepository);
     }
 
     @Test
@@ -53,7 +58,7 @@ class ProductsServiceTest {
                 List.of(new ProductDetails("en", "phone", "a phone")),
                 List.of(new Price("EUR", BigDecimal.valueOf(500.0))), null);
         when(productsMapper.toEntity(any(Product.class))).thenReturn(productEntity);
-        when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
+        when(priceMapper.toEntity(any())).thenReturn(priceEntity);
         when(detailsMapper.toEntity(any())).thenReturn(detailsEntity);
         productsService.create(product);
         var captor = ArgumentCaptor.forClass(ProductEntity.class);
@@ -157,7 +162,7 @@ class ProductsServiceTest {
         var detailsEntity = new ProductDetailsEntity();
         detailsEntity.setTitle("updated phone");
         detailsEntity.setDescription("updated phone description");
-        when(pricesMapper.toEntity(any())).thenReturn(priceEntity);
+        when(priceMapper.toEntity(any())).thenReturn(priceEntity);
         when(detailsMapper.toEntity(any())).thenReturn(detailsEntity);
         when(productsRepository.findById(1L)).thenReturn(Optional.of(entity));
         productsService.update(1L, product);

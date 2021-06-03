@@ -1,5 +1,12 @@
-package julia.products.products;
+package julia.productsapp.products;
 
+import julia.productsapp.products.details.Product;
+import julia.productsapp.products.details.ProductDetailsId;
+import julia.productsapp.products.details.ProductDetailsMapper;
+import julia.productsapp.products.details.ProductDetailsRepository;
+import julia.productsapp.products.price.PriceEntityId;
+import julia.productsapp.products.price.PriceMapper;
+import julia.productsapp.products.price.PriceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,8 +23,8 @@ import java.util.stream.Collectors;
 public class ProductsService {
     private final ProductsMapper productsMapper;
     private final ProductsRepository productsRepository;
-    private final PricesMapper pricesMapper;
-    private final PricesRepository pricesRepository;
+    private final PriceMapper priceMapper;
+    private final PriceRepository priceRepository;
     private final ProductDetailsMapper productDetailsMapper;
     private final ProductDetailsRepository productDetailsRepository;
 
@@ -27,7 +34,7 @@ public class ProductsService {
         productEntity.setUpdatedAt(null);
         var priceEntities = product.getPrices().stream()
                 .map(dto -> {
-                    var priceEntity = pricesMapper.toEntity(dto);
+                    var priceEntity = priceMapper.toEntity(dto);
                     priceEntity.setId(new PriceEntityId());
                     priceEntity.getId().setCurrency(dto.getCurrency());
                     priceEntity.setProduct(productEntity);
@@ -66,7 +73,7 @@ public class ProductsService {
         var productEntity = productsRepository.findById(id).orElseThrow();
         var priceEntities = product.getPrices().stream()
                 .map(dto -> {
-                    var priceEntity = pricesMapper.toEntity(dto);
+                    var priceEntity = priceMapper.toEntity(dto);
                     priceEntity.setId(new PriceEntityId());
                     priceEntity.getId().setCurrency(dto.getCurrency());
                     priceEntity.setProduct(productEntity);
@@ -74,7 +81,7 @@ public class ProductsService {
                     return priceEntity;
                 })
                 .collect(Collectors.toSet());
-        pricesRepository.saveAll(priceEntities);
+        priceRepository.saveAll(priceEntities);
         productEntity.setPrices(priceEntities);
         var productDetails = product.getProductDetails().stream()
                 .map(dto -> {

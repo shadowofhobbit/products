@@ -1,4 +1,4 @@
-package julia.products.error;
+package julia.productsapp.error;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.ResponseEntity;

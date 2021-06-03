@@ -1,7 +1,8 @@
-package julia.products.products;
+package julia.productsapp.products;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import julia.productsapp.products.details.Product;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

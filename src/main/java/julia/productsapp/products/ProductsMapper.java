@@ -1,5 +1,10 @@
-package julia.products.products;
+package julia.productsapp.products;
 
+import julia.productsapp.products.details.Product;
+import julia.productsapp.products.details.ProductDetails;
+import julia.productsapp.products.details.ProductDetailsEntity;
+import julia.productsapp.products.price.Price;
+import julia.productsapp.products.price.PriceEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

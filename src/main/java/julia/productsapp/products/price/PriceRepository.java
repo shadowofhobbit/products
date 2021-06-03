@@ -1,8 +1,8 @@
-package julia.products.products;
+package julia.productsapp.products.price;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PricesRepository extends JpaRepository<PriceEntity, PriceEntityId> {
+public interface PriceRepository extends JpaRepository<PriceEntity, PriceEntityId> {
 }

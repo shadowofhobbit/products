@@ -1,4 +1,4 @@
-package julia.products.products;
+package julia.productsapp.products.price;
 
 
 import lombok.Getter;

@@ -1,7 +1,6 @@
-package julia.products.products;
+package julia.productsapp.products.details;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface ProductDetailsMapper {
