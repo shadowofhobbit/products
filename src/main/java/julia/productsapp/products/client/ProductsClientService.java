@@ -31,32 +31,23 @@ public class ProductsClientService {
 
 
     private void setPrice(String currency, ProductEntity product, ProductClientDto dto) {
-        boolean found = false;
-        for (PriceEntity priceEntity : product.getPrices()) {
-            if (priceEntity.getId().getCurrency().equals(currency)) {
-                dto.setPrice(priceEntity.getPrice());
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            throw new NoDataException("No price in specified currency");
-        }
+        var price = product.getPrices()
+                .stream()
+                .filter(priceEntity -> priceEntity.getId().getCurrency().equals(currency))
+                .map(PriceEntity::getPrice)
+                .findFirst()
+                .orElseThrow(() -> new NoDataException("No price in specified currency"));
+        dto.setPrice(price);
     }
 
     private void setTitleAndDescription(String language, ProductEntity product, ProductClientDto dto) {
-        boolean found = false;
-        for (ProductDetailsEntity details: product.getProductDetails()) {
-            if (details.getId().getLanguage().equals(language)) {
-                dto.setTitle(details.getTitle());
-                dto.setDescription(details.getDescription());
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            throw new NoDataException("No data in specified language");
-        }
+        var details = product.getProductDetails()
+                .stream()
+                .filter(d -> d.getId().getLanguage().equals(language))
+                .findFirst()
+                .orElseThrow(() -> new NoDataException("No data in specified language"));
+        dto.setTitle(details.getTitle());
+        dto.setDescription(details.getDescription());
     }
 
 
